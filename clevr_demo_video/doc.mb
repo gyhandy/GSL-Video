@@ -2,7 +2,7 @@
 
  Name		    Object			Movement		background
 center		small red sphere		controls	 	 default
-0001		big yellow sphere		controls	 	 default
+0001		big yellow cube			controls	 	 default
 0002		small red sphere		control_1	 	 default
 0003		small red sphere		controls	 	 green
-sample		big yellow spere		control_1	 	 green
+sample		big yellow cube			control_1	 	 green
