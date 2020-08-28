@@ -7,12 +7,13 @@
     000004             bigCylinder          Yellow           control_3              default                 Background
 
 
-blender --background --python render_images.py -- --use_gpu 1 --output_image_dir /home/shana/center/ --control controls --Objsize 0.35 --Objname Sphere --Objco 0 --base_scene_blendfile data/base_scene.blend
+# Group 2
+    *Name*            *Object*            *Color*           *Movement*            *Background*            *Common*
+    center             smallCylinder        Blue             control_1              red                     /
+    000001             smallCylinder        Yellow           controls               green                   Object
+    000002             bigSphere            Blue             control_3              default                 Color
+    000003             smallCube            Red              control_1              blue                    Movement
+    000004             smallSphere          Gray             control_2              red                     Background
 
-blender --background --python render_images.py -- --use_gpu 1 --output_image_dir /home/shana/01/ --control control_1 --Objsize 0.35 --Objname Sphere --Objco 1 --base_scene_blendfile data/nm.blend
 
-blender --background --python render_images.py -- --use_gpu 1 --output_image_dir /home/shana/02/ --control control_2 --Objsize 0.35 --Objname SmoothCube_v2 --Objco 0 --base_scene_blendfile data/blue.blend
 
-blender --background --python render_images.py -- --use_gpu 1 --output_image_dir /home/shana/03/ --control controls --Objsize 0.7 --Objname SmoothCube_v2 --Objco 2 --base_scene_blendfile data/red.blend
-
-blender --background --python render_images.py -- --use_gpu 1 --output_image_dir /home/shana/04/ --control control_3 --Objsize 0.7 --Objname SmoothCylinder --Objco 3 --base_scene_blendfile data/base_scene.blend
