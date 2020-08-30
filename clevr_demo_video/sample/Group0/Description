@@ -1,0 +1,9 @@
+Group0
+Name      	Object    	Color                                   	Size                	Speed               	Movement  	Background	Common    
+center.avi	Cylinder  	0.746281, 0.590696, 0.275231, 1.000000  	0.6084767881692976  	0.15403124369407922 	control_3 	purple    	/         
+000001.avi	Cylinder  	0.698967, 0.676570, 0.300272, 1.000000  	0.6414407969949529  	0.4338026238198017  	controls  	yellow    	Object    
+000002.avi	Cube      	0.746281, 0.590696, 0.275231, 1.000000  	0.651704218573476   	0.3709739230719441  	control_4 	base_scene	Color     
+000003.avi	Torus     	0.874814, 0.104117, 0.007875, 1.000000  	0.6084767881692976  	0.4918956091634622  	control_5 	green     	Size      
+000004.avi	Icosphere 	0.302026, 0.112972, 0.254837, 1.000000  	0.47277005934950517 	0.15403124369407922 	control_1 	blue      	Speed     
+000005.avi	Cone      	0.951321, 0.053296, 0.727893, 1.000000  	0.2563383027724579  	0.36021946775397473 	control_3 	red       	Movement  
+000006.avi	Sphere    	0.982315, 0.519191, 0.453578, 1.000000  	0.33859181058633503 	0.4881450891838065  	control_2 	purple    	Background

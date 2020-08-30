@@ -300,7 +300,7 @@ def main(args):
     print("Starting generating")
     for i in range(0, args.num):
         print("Group" + str(i) + ":")
-        p_gen(args.num, objs, sizes, speeds, moves, backs, args.out_dir, args.cle_dir, args.keep_temp)
+        p_gen(i, objs, sizes, speeds, moves, backs, args.out_dir, args.cle_dir, args.keep_temp)
 
 
 if __name__ == '__main__':
