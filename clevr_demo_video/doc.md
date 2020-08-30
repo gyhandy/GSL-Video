@@ -42,14 +42,14 @@
 
 ###### Todo
 
-- [] Color difference calculation
+- Color difference calculation
 
-- [] Speed Design
+- Speed Design
 
 - [x] Format of description file
 
-- [] Randomization of movements
+-  Randomization of movements
 
-- [] More testing
+-  More testing
 
-- [] Object visible debug
+-  Object visible debug
