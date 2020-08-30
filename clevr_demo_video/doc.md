@@ -33,11 +33,11 @@
 3. Copy the content of movement folder into $CLEVR/image_generation/data
 4. Copy the content of object folder into $CLEVR/image_generation/data/shapes
 5. Run generate.py with the following parameters:
-	'--out_dir'  :       Output location for group datas
-	'--cle_dir'  :       Location of render_images.py
-	'--set_dir'  :       Location of setting.json
-	'--num'	     :	     Number of groups that you want to generate
-	'--keep_temp': 	     Keep the images used to generate video or not, default False
+	'--out_dir'  :       Output location for group datas  
+	'--cle_dir'  :       Location of render_images.py  
+	'--set_dir'  :       Location of setting.json  
+	'--num'	     :	     Number of groups that you want to generate  
+	'--keep_temp': 	     Keep the images used to generate video or not, default False  
 	
 
 ###### Todo
