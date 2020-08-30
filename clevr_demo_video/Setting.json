@@ -1,0 +1,34 @@
+{
+  "Object": {
+    "cube": "Cube",
+    "sphere": "Sphere",
+    "cylinder": "Cylinder",
+    "ico": "Icosphere",
+    "cone": "Cone",
+    "torus": "Torus"
+  },
+  "Size": {
+    "Max": 0.7,
+    "Min": 0.2
+  },
+  "Speed": {
+    "Max": 0.5,
+    "Min": 0.1
+  },
+  "Movement": {
+    "mov1": "controls",
+    "mov2": "control_1",
+    "mov3": "control_2",
+    "mov4": "control_3",
+    "mov5": "control_4",
+    "mov6": "control_5"
+  },
+  "Background": {
+    "back1": "base_scene",
+    "back2": "green",
+    "back3": "blue",
+    "back4": "red",
+    "back5": "purple",
+    "back6": "yellow"
+  }
+}
