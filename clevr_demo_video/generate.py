@@ -126,7 +126,7 @@ def p_gen(num, objs, sizes, speeds, moves, backs, out_dir, cle_dir, temp):
     move = []
     back = []
     name = []
-    common = ["Object", "Color", "Size", "Speed", "Movement", "Background"]
+    common = ["/", "Object", "Color", "Size", "Speed", "Movement", "Background"]
 
     for i in range(0, lens + 1):
         if i == 0:
@@ -225,7 +225,7 @@ def p_gen(num, objs, sizes, speeds, moves, backs, out_dir, cle_dir, temp):
         f.write(format("Movement", '<10') + "\t")
         f.write(format("Background", '<10') + "\t")
         f.write(format("Common", '<10') + "\n")
-        for i in range(0, lens):
+        for i in range(0, lens + 1):
             f.write(format(name[i], '<10') + "\t")
             f.write(format(obj[i], '<10') + "\t")
             f.write(format(col[i], '<40') + "\t")
