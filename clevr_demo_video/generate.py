@@ -102,7 +102,7 @@ def u_mkdir(path):
         os.makedirs(path)
 
 
-def p_gen(num, objs, sizes, speeds, moves, backs, out_dir, cle_dir, temp):
+def p_gen(num, objs, sizes, speeds, moves, backs, out_dir, cle_dir, temp, width, height):
     print(cle_dir)
     # Step 1: generate setting file name and store location
     video_dir = os.path.join(out_dir, "Group" + str(num))
@@ -254,7 +254,9 @@ def p_gen(num, objs, sizes, speeds, moves, backs, out_dir, cle_dir, temp):
             "--Objsize", str(size[i]),
             "--max_len", str(speed[i]),
             "--control", move[i],
-            "--base_scene_blendfile", scene
+            "--base_scene_blendfile", scene,
+            "--width", width,
+            "--height", height
         ],
             cwd=cle_dir)
         # generate videos
@@ -282,6 +284,9 @@ def main(args):
     speeds = []
     moves = []
     backs = []
+    resolution = args.resolution.split("x")
+    width = resolution[0]
+    height = resolution[1]
     with open(os.path.join(args.set_dir, "Setting.json"), 'r') as f:
         setting = json.load(f)
         obj = setting['Object']
@@ -294,13 +299,31 @@ def main(args):
         u_getitem(move, moves)
         back = setting['Background']
         u_getitem(back, backs)
+    f.close()
     print("Finish reading setting")
 
-    # Step 2: start generate group data
+    # Step2: Generate basic file for the groups
+    with open(os.path.join(args.out_dir, "Groupinfo.md"), 'w') as f:
+        f.write("#### Attribute\n")
+        f.write("|Attribute|Possible Values|Dynamic/Static|\n"
+                "|---|---|---|\n"
+                "|Object|cube, sphere, cylinder, icosphere, cone, torus|S|\n"
+                "|Color|RGB[ [0,0,0] , [255,255,255] ]|S|\n"
+                "|Size|[0.2,0.7]]|S|\n"
+                "|Speed|[0.1,0.5]]|D|\n"
+                "|Movement|controls, control_1, control_2, control_3, control_4, control_5|D|\n"
+                "|Background|base_scene, green, blue, red, purple, yellow|S|\n"
+                )
+        f.write("&nbsp;\n")
+        f.write("##### Resolution: " + args.resolution+"\n")
+        f.write("##### Group Number: " + str(args.num)+"\n")
+    f.close()
+
+    # Step 3: start generate group data
     print("Starting generating")
     for i in range(0, args.num):
         print("Group" + str(i) + ":")
-        p_gen(i, objs, sizes, speeds, moves, backs, args.out_dir, args.cle_dir, args.keep_temp)
+        p_gen(i, objs, sizes, speeds, moves, backs, args.out_dir, args.cle_dir, args.keep_temp, width, height)
 
 
 if __name__ == '__main__':
@@ -313,5 +336,6 @@ if __name__ == '__main__':
     parser.add_argument('--set_dir', type=str, default=de_vle, help="setting file location")
     parser.add_argument('--num', type=int, default=1, help="number of groups")
     parser.add_argument('--keep_temp', type=bool, default=False, help="Keep the temp frames or not")
+    parser.add_argument('--resolution', type=str, default="512x512", help="resultion of the generate video")
     args = parser.parse_args()
     main(args)
