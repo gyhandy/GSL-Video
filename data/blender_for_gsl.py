@@ -34,7 +34,7 @@ def add_light(name='sun', type='SUN', size=1, loc=(0,0,0), energy=4):
                          radius=size, 
                          align='WORLD', 
                          location=loc)
-    C.active_object.name = name
+    C.object.name = name
     D.objects[name].data.energy = energy
 
 
@@ -44,8 +44,8 @@ def add_camera(name='camera', loc=(0,0,0), rot=(0,0,0)):
                           align='VIEW', 
                           location=loc, 
                           rotation=rot)
-    C.active_object.name = name
-    C.scene.camera = C.active_object
+    C.object.name = name
+    C.scene.camera = C.object
 
 
 def load_materials(mat_path=None):
@@ -80,7 +80,7 @@ def load_materials(mat_path=None):
             new_link = links.new(mat_in.outputs[0], mat_out.inputs[0])
 
 
-def gen_moves(space=(10, 10, 10), center=(0, 0, 6), n=3, points=3):
+def gen_moves(space=(10, 10, 10), center=(0, 0, 6), n=3, points=5):
     """ Generate movement points in a certain space. """
     moves = []
     for i in range(n):
@@ -110,8 +110,8 @@ def add_plane(name='plane',size=200, mat_name='', loc=(0,0,0), rot=(0,0,0)):
                                  align='WORLD', 
                                  location=loc, 
                                  rotation=rot)
-    C.active_object.name = name
-    add_material(C.active_object, mat_name)
+    C.object.name = name
+    add_material(C.object, mat_name)
 
 
 def add_cube(name='cube', size=2, loc=(0,0,0), mat_name=''):
@@ -122,8 +122,8 @@ def add_cube(name='cube', size=2, loc=(0,0,0), mat_name=''):
                                 align='WORLD', 
                                 location=loc, 
                                 rotation=(0, 0, 0))
-    C.active_object.name = name
-    add_material(C.active_object, mat_name)
+    C.object.name = name
+    add_material(C.object, mat_name)
 
 
 def add_uv_sphere(name='sphere', size=2, location=(2,2,2), mat_name=''):
@@ -139,10 +139,9 @@ def add_uv_sphere(name='sphere', size=2, location=(2,2,2), mat_name=''):
     OPS.object.modifier_add(type='SUBSURF')
     C.object.modifiers["Subdivision"].levels = 3
     C.object.modifiers["Subdivision"].render_levels = 3
-#    OPS.object.modifier_apply(apply_as='DATA', modifier="Subdivision")
     OPS.object.shade_smooth()
-    C.active_object.name = name
-    add_material(C.active_object, mat_name)
+    C.object.name = name
+    add_material(C.object, mat_name)
     
 
 def add_cylinder(name='cylinder', r=1, h=2, location=(1,1,1), mat_name=''):
@@ -156,14 +155,44 @@ def add_cylinder(name='cylinder', r=1, h=2, location=(1,1,1), mat_name=''):
                                     align='WORLD', 
                                     location=location, 
                                     rotation=(0, 0, 0))
-    C.active_object.name = name
-    add_material(C.active_object, mat_name)
+    C.object.name = name
+    add_material(C.object, mat_name)
+
+
+def add_torus(name='torus',size=1, loc=(0,0,0), rot=(0,0,0), mat_name=''):
+    """ Add a torus. """
+    bpy.ops.mesh.primitive_torus_add(align='WORLD', 
+                                     location=loc, 
+                                     rotation=rot, 
+                                     major_radius=size, 
+                                     minor_radius=size*0.25, 
+                                     abso_major_rad=1.25, 
+                                     abso_minor_rad=0.75)
+    OPS.object.modifier_add(type='SUBSURF')
+    C.object.modifiers['Subdivision'].render_levels = 3
+    C.object.modifiers['Subdivision'].levels = 3
+    OPS.object.shade_smooth()
+    C.object.name = name
+    add_material(C.object, mat_name)
+
+
+def add_cone(name='torus', size=1, loc=(0,0,0), mat_name=''):
+    """ Add a cone. """
+    bpy.ops.mesh.primitive_cone_add(radius1=size, 
+                                    radius2=0, 
+                                    depth=size*2, 
+                                    enter_editmode=False, 
+                                    align='WORLD', 
+                                    location=loc)
+    OPS.object.shade_smooth()
+    C.object.name = name
+    add_material(C.object, mat_name)
 
 
 def add_movement(obj=None, track=None):
     """ Add dynamics and link to key frames. """
-    track = track.copy()
-    track.insert(0, tuple(obj.location))
+    # track = track.copy()
+    # track.insert(0, tuple(obj.location))
     frame = 0
     for pos in track:
         C.scene.frame_set(frame)
@@ -171,7 +200,7 @@ def add_movement(obj=None, track=None):
         obj.rotation_euler[0] += math.radians(90)
         obj.keyframe_insert(data_path='location', index=-1)
         obj.keyframe_insert(data_path='rotation_euler', index=-1)
-        frame += 30
+        frame += 15
 
 
 def render_setting(length=None):
@@ -213,11 +242,12 @@ def prepare_scene(bg_color=None, length=None):
     add_plane('plane4', 100, bg_color, loc=(-50,0,0),rot=(0,math.radians(90),0))
 
 
-def render(path=None, obj_name='', color='', bg_color='', move=''):
+def render(path=None, obj_name='', size=1, color='', bg='', move='', speed=1):
     """ Render demo. """
     clear_scene()
-    prepare_scene(bg_color, len(move))
+    prepare_scene(bg, len(move))
     
+
     if obj_name == 'cube':
         add_cube('cube', 2, (1,1,1), color)
         add_movement(D.objects['cube'], move)
@@ -227,10 +257,15 @@ def render(path=None, obj_name='', color='', bg_color='', move=''):
     elif obj_name == 'cylinder':
         add_cylinder('cylinder', 1, 2, (1,1,1), color)
         add_movement(D.objects['cylinder'], move)
+    elif obj_name == 'torus':
+        add_torus('torus', size=size, loc=move[0], mat_name=color)
+        add_movement(D.objects['torus'], move)
+    elif obj_name == 'cone':
+        add_cone('cone', size=size, loc=move[0], mat_name=color)
+        add_movement(D.objects['cone'], move)
     
     if path:
         C.scene.render.filepath = path
-#        OPS.render.render(animation=True, use_viewport=True)
         OPS.render.render(animation=True)
 
 
