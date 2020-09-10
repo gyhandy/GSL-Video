@@ -4,7 +4,7 @@ Put this file in the /path/to/blender/your-version/scripts/addons to work.
 
 import os
 import math
-from random import randint
+from random import randint, choice
 
 import bpy
 from bpy import context as C
@@ -28,7 +28,7 @@ def clear_scene():
     bpy.ops.object.delete(use_global=False)
     
 
-def add_light(name='sun', type='SUN', size=1, loc=(0,0,0), energy=4):
+def add_light(name='sun', type='SUN', size=1, loc=(0,0,0),rot=(0,0,0),energy=4):
     """ Add lighting. """
     OPS.object.light_add(type=type, 
                          radius=size, 
@@ -36,6 +36,7 @@ def add_light(name='sun', type='SUN', size=1, loc=(0,0,0), energy=4):
                          location=loc)
     C.object.name = name
     D.objects[name].data.energy = energy
+    D.objects[name].rotation_euler = rot
 
 
 def add_camera(name='camera', loc=(0,0,0), rot=(0,0,0)):
@@ -80,7 +81,7 @@ def load_materials(mat_path=None):
             new_link = links.new(mat_in.outputs[0], mat_out.inputs[0])
 
 
-def gen_moves(space=(10, 10, 10), center=(0, 0, 6), n=3, points=5):
+def gen_moves(space=(10, 10, 10), center=(0, 0, 6), n=3, points=5, size=1):
     """ Generate movement points in a certain space. """
     moves = []
     for i in range(n):
@@ -88,7 +89,8 @@ def gen_moves(space=(10, 10, 10), center=(0, 0, 6), n=3, points=5):
         for j in range(points):
             temp.append((randint(center[0]-space[0]/2, center[0]+space[0]/2), 
                          randint(center[1]-space[1]/2, center[1]+space[1]/2), 
-                         randint(center[2]-space[2]/2, center[2]+space[2]/2)))
+#                         randint(center[2]-space[2]/2, center[2]+space[2]/2)
+                         size*2))
         moves.append(temp)
     return moves
 
@@ -101,8 +103,15 @@ def add_material(obj=None, name=None):
     else:
         print("Wrong material name. ")
 
-   
-def add_plane(name='plane',size=200, mat_name='', loc=(0,0,0), rot=(0,0,0)):
+
+def set_color(obj=None, color=None):
+    """ Set color for an object. """
+    mat = obj.material_slots[0].material
+    mat_name = mat.name
+    mat.node_tree.nodes[mat_name].inputs[0].default_value = color
+    
+
+def add_plane(name='plane', size=200, color=(), loc=(0,0,0), rot=(0,0,0)):
     """ Add a plane. """
     OPS.mesh.primitive_plane_add(size=size, 
                                  calc_uvs=True, 
@@ -111,10 +120,11 @@ def add_plane(name='plane',size=200, mat_name='', loc=(0,0,0), rot=(0,0,0)):
                                  location=loc, 
                                  rotation=rot)
     C.object.name = name
-    add_material(C.object, mat_name)
+    add_material(C.object, 'Glossy BSDF')
+    set_color(C.object, color)
 
 
-def add_cube(name='cube', size=2, loc=(0,0,0), mat_name=''):
+def add_cube(name='cube', size=2, color=(), loc=(0,0,0)):
     """ Add a cube. """
     OPS.mesh.primitive_cube_add(size=size, 
                                 calc_uvs=True, 
@@ -123,10 +133,11 @@ def add_cube(name='cube', size=2, loc=(0,0,0), mat_name=''):
                                 location=loc, 
                                 rotation=(0, 0, 0))
     C.object.name = name
-    add_material(C.object, mat_name)
+    add_material(C.object, 'Toon BSDF')
+    set_color(C.object, color)
 
 
-def add_uv_sphere(name='sphere', size=2, location=(2,2,2), mat_name=''):
+def add_uv_sphere(name='sphere', size=2, color=(), loc=(2,2,2)):
     """ Add a sphere. """
     OPS.mesh.primitive_uv_sphere_add(segments=64, 
                                      ring_count=32, 
@@ -134,32 +145,34 @@ def add_uv_sphere(name='sphere', size=2, location=(2,2,2), mat_name=''):
                                      calc_uvs=True, 
                                      enter_editmode=False, 
                                      align='WORLD', 
-                                     location=location, 
+                                     location=loc, 
                                      rotation=(0, 0, 0))
     OPS.object.modifier_add(type='SUBSURF')
     C.object.modifiers["Subdivision"].levels = 3
     C.object.modifiers["Subdivision"].render_levels = 3
     OPS.object.shade_smooth()
     C.object.name = name
-    add_material(C.object, mat_name)
+    add_material(C.object, 'Toon BSDF')
+    set_color(C.object, color)
     
 
-def add_cylinder(name='cylinder', r=1, h=2, location=(1,1,1), mat_name=''):
+def add_cylinder(name='cylinder', size=1, color=(), loc=(1,1,1)):
     """ Add a cylinder. """
     OPS.mesh.primitive_cylinder_add(vertices=64, 
-                                    radius=r, 
-                                    depth=h, 
+                                    radius=size, 
+                                    depth=size*2, 
                                     end_fill_type='NGON', 
                                     calc_uvs=True, 
                                     enter_editmode=False, 
                                     align='WORLD', 
-                                    location=location, 
+                                    location=loc, 
                                     rotation=(0, 0, 0))
     C.object.name = name
-    add_material(C.object, mat_name)
+    add_material(C.object, 'Toon BSDF')
+    set_color(C.object, color)
 
 
-def add_torus(name='torus',size=1, loc=(0,0,0), rot=(0,0,0), mat_name=''):
+def add_torus(name='torus',size=1, color=(), loc=(0,0,0), rot=(0,0,0)):
     """ Add a torus. """
     bpy.ops.mesh.primitive_torus_add(align='WORLD', 
                                      location=loc, 
@@ -173,10 +186,11 @@ def add_torus(name='torus',size=1, loc=(0,0,0), rot=(0,0,0), mat_name=''):
     C.object.modifiers['Subdivision'].levels = 3
     OPS.object.shade_smooth()
     C.object.name = name
-    add_material(C.object, mat_name)
+    add_material(C.object, 'Toon BSDF')
+    set_color(C.object, color)
 
 
-def add_cone(name='torus', size=1, loc=(0,0,0), mat_name=''):
+def add_cone(name='torus', size=1, color=(), loc=(0,0,0)):
     """ Add a cone. """
     bpy.ops.mesh.primitive_cone_add(radius1=size, 
                                     radius2=0, 
@@ -186,85 +200,94 @@ def add_cone(name='torus', size=1, loc=(0,0,0), mat_name=''):
                                     location=loc)
     OPS.object.shade_smooth()
     C.object.name = name
-    add_material(C.object, mat_name)
+    add_material(C.object, 'Toon BSDF')
+    set_color(C.object, color)
 
 
-def add_movement(obj=None, track=None):
+def add_movement(obj=None, speed=1, move=[], rot=[]):
     """ Add dynamics and link to key frames. """
-    # track = track.copy()
-    # track.insert(0, tuple(obj.location))
     frame = 0
-    for pos in track:
+    for pos in move:
         C.scene.frame_set(frame)
         obj.location = pos
-        obj.rotation_euler[0] += math.radians(90)
+        obj.rotation_euler[rot[0]] += rot[1]
         obj.keyframe_insert(data_path='location', index=-1)
         obj.keyframe_insert(data_path='rotation_euler', index=-1)
-        frame += 15
+        frame += 30 // speed
 
 
-def render_setting(length=None):
-    """ This function might be loaded from a config file. """
+def prepare_scene(color=None, length=None, speed=None, fps=30):
+    """ Prepare scene. """
+    clear_scene()
+    load_materials()
+
     C.scene.render.engine = 'CYCLES'
     C.scene.cycles.device = 'GPU'
     C.scene.render.resolution_x = 512
     C.scene.render.resolution_y = 512
-#    C.scene.render.resolution_x = 960
-#    C.scene.render.resolution_y = 540
-#    C.scene.render.resolution_x = 1920
-#    C.scene.render.resolution_y = 1080
 
     C.scene.cycles.samples = 256
-    C.scene.render.tile_x = 32
-    C.scene.render.tile_y = 32
-#    C.scene.use_denoising = True
+    C.scene.render.tile_x = 512
+    C.scene.render.tile_y = 512
+    C.view_layer.cycles.use_denoising = True
 
-    C.scene.render.fps = 30
+    C.scene.render.fps = fps
     C.scene.render.image_settings.file_format = 'FFMPEG'
-#    C.scene.render.ffmpeg.format = 'MPEG4'
-    C.scene.render.ffmpeg.format = 'AVI'
-    C.scene.frame_end = C.scene.render.fps * length
+#    C.scene.render.ffmpeg.format = 'MPEG4'  # for .mp4
+    C.scene.render.ffmpeg.format = 'AVI'  # for .avi
+    C.scene.frame_end = fps * length // speed
 
-
-def prepare_scene(bg_color=None, length=None):
-    """ Prepare scene. """
-    load_materials()
-    render_setting(length)
-    add_light('sun', 'SUN', 2, loc=(0,-50,50), energy=2.0)
-    D.objects['sun'].rotation_euler=(math.radians(45), 0, 0)
-    add_light('area', 'AREA', 100, loc=(0,0,50), energy=10000)
-    add_camera('camera',
-               loc=(50,-50,50),
+#    add_light('sun', 'SUN', 2, loc=(0,-50,50), 
+#              rot=(math.radians(45),0,0), energy=0.5)
+    add_light('area', 'AREA', 100, loc=(0,0,50), energy=30000)
+    add_camera('camera', loc=(50,-50,50),
                rot=(math.radians(60),0,math.radians(45)))
-    add_plane('plane1', 100, bg_color)
-    add_plane('plane2', 100, bg_color, loc=(0,50,0), rot=(math.radians(90),0,0))
-    add_plane('plane3', 100, bg_color, loc=(50,0,0), rot=(0,math.radians(90),0))
-    add_plane('plane4', 100, bg_color, loc=(-50,0,0),rot=(0,math.radians(90),0))
+    add_plane('plane1', 100, color, loc=(0,0,0), rot=(0,0,0))
+    add_plane('plane2', 100, color, loc=(0,50,0), rot=(math.radians(90),0,0))
+    add_plane('plane3', 100, color, loc=(50,0,0), rot=(0,math.radians(90),0))
+    add_plane('plane4', 100, color, loc=(-50,0,0), rot=(0,math.radians(90),0))
 
 
-def render(path=None, obj_name='', size=1, color='', bg='', move='', speed=1):
-    """ Render demo. """
-    clear_scene()
-    prepare_scene(bg, len(move))
+def render(path=None, 
+           obj='', 
+           color=(), 
+           bg=(), 
+           size=1, 
+           speed=1, 
+           move=[], 
+           rot=[0,math.radians(45)]):
+    """ Render a video. 
+    Params:
+        path: str, path to the rendered video, 
+        obj: str, object name, 
+        color: str, object color, 
+        bg: str, background color, 
+        size: int, object size (uniformed for different objects), 
+        speed: int, object move speed, 
+        move: list of 3d position tuples, 
+        rot: tuple of rotation axis and degree.
+    Returns: None
+    """
+    prepare_scene(color=bg, length=len(move)-1, speed=speed, fps=30)
     
-
-    if obj_name == 'cube':
-        add_cube('cube', 2, (1,1,1), color)
-        add_movement(D.objects['cube'], move)
-    elif obj_name == 'sphere':
-        add_uv_sphere('sphere', 1, (1,1,1), color)
-        add_movement(D.objects['sphere'], move)
-    elif obj_name == 'cylinder':
-        add_cylinder('cylinder', 1, 2, (1,1,1), color)
-        add_movement(D.objects['cylinder'], move)
-    elif obj_name == 'torus':
-        add_torus('torus', size=size, loc=move[0], mat_name=color)
-        add_movement(D.objects['torus'], move)
-    elif obj_name == 'cone':
-        add_cone('cone', size=size, loc=move[0], mat_name=color)
-        add_movement(D.objects['cone'], move)
     
-    if path:
+    if obj == 'cube':
+        add_cube('cube', size=size, loc=move[0], color=color)
+        add_movement(obj=D.objects['cube'], speed=speed, move=move, rot=rot)
+    elif obj == 'sphere':
+        add_uv_sphere('sphere', size=size, loc=move[0], color=color)
+        add_movement(obj=D.objects['sphere'], speed=speed, move=move, rot=rot)
+    elif obj == 'cylinder':
+        add_cylinder('cylinder', size=size, loc=move[0], color=color)
+        add_movement(obj=D.objects['cylinder'], speed=speed, move=move, rot=rot)
+    elif obj == 'torus':
+        add_torus('torus', size=size, loc=move[0], color=color)
+        add_movement(obj=D.objects['torus'], speed=speed, move=move, rot=rot)
+    elif obj == 'cone':
+        add_cone('cone', size=size, loc=move[0], color=color)
+        add_movement(obj=D.objects['cone'], speed=speed, move=move, rot=rot)
+    
+    if path:  # render and save video
         C.scene.render.filepath = path
         OPS.render.render(animation=True)
 
