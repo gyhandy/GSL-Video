@@ -121,7 +121,9 @@ def set_color(obj=None, color=None):
     mat = obj.material_slots[0].material
     mat_name = mat.name
     mat.node_tree.nodes[mat_name].inputs[0].default_value = color
-
+    ### Texture to make sphere rotation visible
+    #    if 'plane' not in obj.name:
+#        mat.node_tree.nodes['Checker Texture'].inputs['Color2'].default_value = color
 
 def add_plane(name='plane', size=200, color=(), loc=(0, 0, 0), rot=(0, 0, 0)):
     """ Add a plane. """
