@@ -74,11 +74,19 @@ def load_materials(mat_path=None):
             new_mat = D.materials.new(name=name)
             new_mat.use_nodes = True
             nodes = new_mat.node_tree.nodes
+            nodes.remove(nodes['Principled BSDF'])
+            
             mat_out = nodes.get('Material Output')
-            mat_in = nodes.new(type=materials[name]['type'])
-            mat_in.inputs[0].default_value = materials[name]['color']
+            bsdf = nodes.new(type=materials[name]['type'])
+            
+            bsdf.inputs['Color'].default_value = materials[name]['color']
             links = new_mat.node_tree.links
-            new_link = links.new(mat_in.outputs[0], mat_out.inputs[0])
+            links.new(bsdf.outputs[0], mat_out.inputs[0])
+            
+#            if name == 'Toon BSDF':
+#                tex = nodes.new(type='ShaderNodeTexChecker')
+#                links.new(tex.outputs[0], bsdf.inputs[0])
+#                tex.inputs['Color2'].default_value = materials[name]['color']
 
 
 def gen_moves(space=(10, 10, 10), center=(0, 0, 6), n=3, points=5, size=1):
@@ -108,7 +116,9 @@ def set_color(obj=None, color=None):
     """ Set color for an object. """
     mat = obj.material_slots[0].material
     mat_name = mat.name
-    mat.node_tree.nodes[mat_name].inputs[0].default_value = color
+    mat.node_tree.nodes[mat_name].inputs['Color'].default_value = color
+#    if 'plane' not in obj.name:
+#        mat.node_tree.nodes['Checker Texture'].inputs['Color2'].default_value = color
     
 
 def add_plane(name='plane', size=200, color=(), loc=(0,0,0), rot=(0,0,0)):
