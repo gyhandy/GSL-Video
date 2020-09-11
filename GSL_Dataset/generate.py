@@ -7,16 +7,8 @@ import json
 import random
 import sys
 
-# render(
-#            path="/home/shana/te.avi",
-#            obj='cube',
-#            color=(0.8,0.2,0.15,1.0),
-#            bg=(0.25,0.9,0.8,1.0),
-#            size=2,
-#            speed=1,
-#            move=gen_moves()[0],
-#            rot=[1,math.radians(45)]
-#     )
+
+
 def extract_args(input_argv=None):
     """
   Pull out command-line arguments after "--". Blender ignores command-line flags
@@ -31,6 +23,14 @@ def extract_args(input_argv=None):
         output_argv = input_argv[(idx + 1):]
     return output_argv
 
+
+def u_rgb(rgb):
+    r = float(rgb[0]) / 255.0
+    g = float(rgb[1]) / 255.0
+    b = float(rgb[2]) / 255.0
+    return (r, g, b, 1.0)
+
+
 def u_getitem(js, box):
     """
     :param js: json file
@@ -41,14 +41,14 @@ def u_getitem(js, box):
         box.append(value)
 
 
-def u_diffite(set, item):
+def u_diffitem(sets, item):
     """
 
-    :param set:
+    :param sets:
     :param item:
     :return:
     """
-    if item == set[0]:
+    if item == sets[0]:
         return False
     return True
 
@@ -60,9 +60,11 @@ def u_getun(set, ori):
     :return:
     """
     temp = random.choice(ori)
+    if not set:
+        return temp
     while True:
         # print(temp)
-        if u_diffite(set, temp):
+        if u_diffitem(set, temp):
             break
         temp = random.choice(ori)
     return temp
@@ -183,36 +185,48 @@ def p_gen(num, objs, colors, sizes, speeds, moves, backs, rotations, resolution,
         f.write("Group" + str(num) + "\n")
         f.write(format("Name", '<10') + "\t")
         f.write(format("Object", '<10') + "\t")
-        f.write(format("Color", '<40') + "\t")
-        f.write(format("Size", '<20') + "\t")
-        f.write(format("Speed", '<20') + "\t")
-        f.write(format("Movement", '<10') + "\t")
-        f.write(format("Background", '<10') + "\t")
-        f.write(format("Rotation", '<10') + "\t")
+        f.write(format("Color", '<15') + "\t")
+        f.write(format("Size", '<5') + "\t")
+        f.write(format("Speed", '<5') + "\t")
+        f.write(format("Movement", '<70') + "\t")
+        f.write(format("Background", '<20') + "\t")
+        f.write(format("Rotation", '<8') + "\t")
         f.write(format("Common", '<10') + "\n")
         for i in range(0, 8):
             f.write(format(name[i], '<10') + "\t")
             f.write(format(obj[i], '<10') + "\t")
-            f.write(format(col[i], '<40') + "\t")
-            f.write(format(str(size[i]), '<20') + "\t")
-            f.write(format(str(speed[i]), '<20') + "\t")
-            f.write(format(move[i], '<10') + "\t")
-            f.write(format(back[i], '<10') + "\t")
-            f.write(format(rotation[i], '<10') + "\t")
+            f.write(format(str(col[i]), '<15') + "\t")
+            f.write(format(str(size[i]), '<5') + "\t")
+            f.write(format(str(speed[i]), '<5') + "\t")
+            f.write(format(move[i], '<70') + "\t")
+            f.write(format(str(back[i]), '<20') + "\t")
+            f.write(format(str(rotation[i]), '<8') + "\t")
             f.write(format(common[i], '<10') + "\n")
     print("Finish generating doc")
 
     # Step 4: Render the videos
+    # i = 0
+    # a = [int(rotation[i][0]), int(rotation[i][1])]
+    # print(a)
     for i in range(0, 8):
+        temp = move[i]
+        temp = temp[1:len(temp)-1].split(" ")
+        mm = []
+        for h in temp:
+            temp1 = h[1:len(h)-1].split(",")
+            temp2 = [float(c) for c in temp1]
+            mm.append(temp2)
+        # print(len(mm[0]))
+        # print(mm)
         render(
             path=os.path.join(video_dir, name[i]),
             object=obj[i],
-            color=col[i],
-            background=back[i],
+            color=u_rgb(col[i]),
+            background=u_rgb(back[i]),
             sizes=size[i],
             speeds=speed[i],
-            movement=move[i],
-            rot=rotation[i],
+            movement=mm,
+            rot=[rotation[i][0],math.radians(rotation[i][1])],
             x=resolution[0],
             y=resolution[1]
         )
@@ -252,16 +266,27 @@ def main(args):
         f.write("#### Attribute\n")
         f.write("|Attribute|Possible Values|Dynamic/Static|\n"
                 "|---|---|---|\n"
-                "|Object|cube, sphere, cylinder, icosphere, cone, torus|S|\n"
-                "|Color|RGB[ [0,0,0] , [255,255,255] ]|S|\n"
-                "|Size|[0.2,0.7]]|S|\n"
-                "|Speed|[0.1,0.5]]|D|\n"
-                "|Movement|controls, control_1, control_2, control_3, control_4, control_5|D|\n"
-                "|Background|base_scene, green, blue, red, purple, yellow|S|\n"
-                "|Rotation|base_scene, green, blue, red, purple, yellow|D|\n"
-                )
+                "|Object|")
+        for i in objs:
+            f.write(i+" ")
+        f.write("|S|\n|Color|RGB ")
+        for i in colors:
+            f.write(str(i)+" ")
+        f.write("|S|\n|Size|")
+        for i in sizes:
+            f.write(str(i)+ " ")
+        f.write("|S|\n|Speed|")
+        for i in speeds:
+            f.write(str(i)+" ")
+        f.write("|D|\n|Movement|control_0, control_1, control_2, control_3, control_4, control_5|D|\n|Background|RGB ")
+        for i in backs:
+            f.write(str(i)+" ")
+        f.write("|S|\n|Rotation|")
+        for i in rotations:
+            f.write(str(i)+" ")
+        f.write("|D|\n")
         f.write("&nbsp;\n")
-        f.write("##### Resolution: " + args.resolution + "\n")
+        f.write("##### Resolution: " + str(resolution[0]) +" x "+str(resolution[1])+ "\n")
         f.write("##### Group Number: " + str(args.num) + "\n")
     f.close()
 
@@ -286,3 +311,15 @@ if __name__ == '__main__':
     argv = extract_args()
     args = parser.parse_args(argv)
     main(args)
+    # use_gpu()
+    # render(
+    #            path="/home/shana/te.avi",
+    #            object='sphere',
+    #            color=(0.8,0.2,0.15,1.0),
+    #            background=(0.25,0.9,0.8,1.0),
+    #            sizes=8,
+    #            speeds=5,
+    #            movement=[(-15,-15,10),(-15,15,10),(15,15,10),(15,-15,10)],
+    #            rot=[0,math.radians(-45)]
+    #     )
+    #print(gen_moves()[0])
