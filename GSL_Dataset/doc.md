@@ -24,7 +24,7 @@
 #### Test Installation
 1. *cd $GSL/GSL_Dataset*
 
-2. *blender --background --python generate.py*
+2. *blender --background --python generate.py* -- --num 1
 
   
 

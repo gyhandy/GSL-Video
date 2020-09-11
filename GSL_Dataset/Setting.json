@@ -16,8 +16,8 @@
   },
   "Size": {
     "Small": 2,
-    "Medium": 5,
-    "Big": 8
+    "Medium": 4,
+    "Big": 6
   },
   "Speed": {
     "Slow":1,
@@ -34,9 +34,9 @@
   },
   "Background": {
     "Ivory3": [205,205,193],
-    "MistyRose": [255,228,225],
-    "Azure1": [240,255,255],
-    "NavajoWhite": [255,222,173],
+    "Lightpink": [255,182,193],
+    "Paleturquoise": [175,238,238],
+    "Darkkkhaki": [189,183,107],
     "LightSalmon1": [255,160,122],
     "DarKSeaGreen1": [193,255,193]
   },
