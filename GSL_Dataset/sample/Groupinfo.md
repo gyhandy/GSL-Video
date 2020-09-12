@@ -10,4 +10,5 @@
 |Rotation|[0, 45] [0, -45] [1, 45] [1, -45] |D|
 &nbsp;
 ##### Resolution: 512 x 512
-##### Group Number: 1
+##### FPS: 30
+##### Group Number: 4

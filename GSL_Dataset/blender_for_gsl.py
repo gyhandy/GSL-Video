@@ -228,6 +228,7 @@ def add_movement(obj=None, speed=1, move=[], rot=[]):
         obj.keyframe_insert(data_path='location', index=-1)
         obj.keyframe_insert(data_path='rotation_euler', index=-1)
         frame += 30 // speed
+    return frame
 
 
 def prepare_scene(color=None, length=None, speed=None, fps=30, rx=512, ry=512):
@@ -284,25 +285,26 @@ def render(path=None,
         rot: tuple of rotation axis and degree.
     Returns: None
     """
+    frame = 0
     prepare_scene(color=background, length=len(movement) - 1, speed=speeds, fps=30, rx=x, ry=y)
-
 
     if object == 'cube':
         add_cube('cube', size=sizes, loc=movement[0], color=color)
-        add_movement(obj=D.objects['cube'], speed=speeds, move=movement, rot=rot)
+        frame = add_movement(obj=D.objects['cube'], speed=speeds, move=movement, rot=rot)
     elif object == 'sphere':
         add_uv_sphere('sphere', size=sizes, loc=movement[0], color=color)
-        add_movement(obj=D.objects['sphere'], speed=speeds, move=movement, rot=rot)
+        frame = add_movement(obj=D.objects['sphere'], speed=speeds, move=movement, rot=rot)
     elif object == 'cylinder':
         add_cylinder('cylinder', size=sizes, loc=movement[0], color=color)
-        add_movement(obj=D.objects['cylinder'], speed=speeds, move=movement, rot=rot)
+        frame = add_movement(obj=D.objects['cylinder'], speed=speeds, move=movement, rot=rot)
     elif object == 'torus':
         add_torus('torus', size=sizes, loc=movement[0], color=color)
-        add_movement(obj=D.objects['torus'], speed=speeds, move=movement, rot=rot)
+        frame = add_movement(obj=D.objects['torus'], speed=speeds, move=movement, rot=rot)
     elif object == 'cone':
         add_cone('cone', size=sizes, loc=movement[0], color=color)
-        add_movement(obj=D.objects['cone'], speed=speeds, move=movement, rot=rot)
+        frame = add_movement(obj=D.objects['cone'], speed=speeds, move=movement, rot=rot)
 
     if path:  # render and save video
         C.scene.render.filepath = path
         OPS.render.render(animation=True)
+    return frame

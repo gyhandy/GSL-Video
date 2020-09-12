@@ -8,7 +8,6 @@ import random
 import sys
 
 
-
 def extract_args(input_argv=None):
     """
   Pull out command-line arguments after "--". Blender ignores command-line flags
@@ -94,6 +93,7 @@ def p_gen(num, objs, colors, sizes, speeds, moves, backs, rotations, resolution,
     back = []
     rotation = []
     name = []
+    frames = []
     common = ["/", "Object", "Color", "Size", "Speed", "Movement", "Background", "Rotation"]
     for i in range(0, 8):
         if i == 0:
@@ -180,7 +180,33 @@ def p_gen(num, objs, colors, sizes, speeds, moves, backs, rotations, resolution,
                 back.append(u_getun(back, backs))
                 rotation.append(rotation[0])
 
-    # Step 3: Generate doc
+    # Step 3: Render the videos
+    for i in range(0, 8):
+        temp = move[i]
+        temp = temp[1:len(temp) - 1].split(" ")
+        mm = []
+        for h in temp:
+            temp1 = h[1:len(h) - 1].split(",")
+            temp2 = [float(c) for c in temp1]
+            mm.append(temp2)
+        # print(len(mm[0]))
+        # print(mm)
+        frame = render(
+            path=os.path.join(video_dir, name[i]),
+            object=obj[i],
+            color=u_rgb(col[i]),
+            background=u_rgb(back[i]),
+            sizes=size[i],
+            speeds=speed[i],
+            movement=mm,
+            rot=[rotation[i][0], math.radians(rotation[i][1])],
+            x=resolution[0],
+            y=resolution[1]
+        )
+        frame = 0.75*frame
+        frames.append(frame)
+
+    # Step 4: Generate doc
     with open(doc, 'w') as f:
         f.write("Group" + str(num) + "\n")
         f.write(format("Name", '<10') + "\t")
@@ -191,7 +217,8 @@ def p_gen(num, objs, colors, sizes, speeds, moves, backs, rotations, resolution,
         f.write(format("Movement", '<70') + "\t")
         f.write(format("Background", '<20') + "\t")
         f.write(format("Rotation", '<8') + "\t")
-        f.write(format("Common", '<10') + "\n")
+        f.write(format("Common", '<10') + "\t")
+        f.write(format("Frame#", '<10') + "\n")
         for i in range(0, 8):
             f.write(format(name[i], '<10') + "\t")
             f.write(format(obj[i], '<10') + "\t")
@@ -201,35 +228,9 @@ def p_gen(num, objs, colors, sizes, speeds, moves, backs, rotations, resolution,
             f.write(format(move[i], '<70') + "\t")
             f.write(format(str(back[i]), '<20') + "\t")
             f.write(format(str(rotation[i]), '<8') + "\t")
-            f.write(format(common[i], '<10') + "\n")
+            f.write(format(common[i], '<10') + "\t")
+            f.write(format(str(frames[i]), '<10') + "\n")
     print("Finish generating doc")
-
-    # Step 4: Render the videos
-    # i = 0
-    # a = [int(rotation[i][0]), int(rotation[i][1])]
-    # print(a)
-    for i in range(0, 8):
-        temp = move[i]
-        temp = temp[1:len(temp)-1].split(" ")
-        mm = []
-        for h in temp:
-            temp1 = h[1:len(h)-1].split(",")
-            temp2 = [float(c) for c in temp1]
-            mm.append(temp2)
-        # print(len(mm[0]))
-        # print(mm)
-        render(
-            path=os.path.join(video_dir, name[i]),
-            object=obj[i],
-            color=u_rgb(col[i]),
-            background=u_rgb(back[i]),
-            sizes=size[i],
-            speeds=speed[i],
-            movement=mm,
-            rot=[rotation[i][0],math.radians(rotation[i][1])],
-            x=resolution[0],
-            y=resolution[1]
-        )
 
 
 def main(args):
@@ -247,6 +248,7 @@ def main(args):
     backs = []
     rotations = []
     resolution = []
+    fps = []
     with open(os.path.join(args.set_dir, "Setting.json"), 'r') as f:
         setting = json.load(f)
         u_getitem(setting['Object'], objs)
@@ -257,6 +259,7 @@ def main(args):
         u_getitem(setting['Background'], backs)
         u_getitem(setting['Rotation'], rotations)
         u_getitem(setting['Resolution'], resolution)
+        u_getitem(setting['FPS'], fps)
 
     f.close()
     print("Finish reading setting")
@@ -268,26 +271,28 @@ def main(args):
                 "|---|---|---|\n"
                 "|Object|")
         for i in objs:
-            f.write(i+" ")
+            f.write(i + " ")
         f.write("|S|\n|Color|RGB ")
         for i in colors:
-            f.write(str(i)+" ")
+            f.write(str(i) + " ")
         f.write("|S|\n|Size|")
         for i in sizes:
-            f.write(str(i)+ " ")
+            f.write(str(i) + " ")
         f.write("|S|\n|Speed|")
         for i in speeds:
-            f.write(str(i)+" ")
+            f.write(str(i) + " ")
         f.write("|D|\n|Movement|control_0, control_1, control_2, control_3, control_4, control_5|D|\n|Background|RGB ")
         for i in backs:
-            f.write(str(i)+" ")
+            f.write(str(i) + " ")
         f.write("|S|\n|Rotation|")
         for i in rotations:
-            f.write(str(i)+" ")
+            f.write(str(i) + " ")
         f.write("|D|\n")
         f.write("&nbsp;\n")
-        f.write("##### Resolution: " + str(resolution[0]) +" x "+str(resolution[1])+ "\n")
+        f.write("##### Resolution: " + str(resolution[0]) + " x " + str(resolution[1]) + "\n")
+        f.write("##### FPS: "+str(fps[0])+"\n")
         f.write("##### Group Number: " + str(args.num) + "\n")
+
     f.close()
 
     # Step 3: Generate the Group Videos
@@ -322,4 +327,3 @@ if __name__ == '__main__':
     #            movement=[(-15,-15,10),(-15,15,10),(15,15,10),(15,-15,10)],
     #            rot=[0,math.radians(-45)]
     #     )
-    #print(gen_moves()[0])

@@ -49,5 +49,8 @@
   "Resolution":{
   	"Width":512,
   	"Height":512
+  },
+  "FPS":{
+  	"fps":30
   }
 }
